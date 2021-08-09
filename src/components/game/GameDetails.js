@@ -58,6 +58,13 @@ export const GameDetail = (props) => {
                 <li>{category.name}</li>
                   )} 
             </div>
+            <div className="game_ratings">
+                Average Rating:{game.average_rating}
+            </div>
+            <div className="game_rating">
+              Rate This Game:
+              <input type="number" min="1" max="10"/><button>Submit</button>
+            </div>
             <div className="game_reviews">
               Reviews:
                 {reviews?.map(review => 
