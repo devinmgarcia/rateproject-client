@@ -1,62 +1,54 @@
 import React, { useContext, useState, useEffect } from "react"
 import { GameContext } from "./GameProvider.js"
 import { useHistory } from 'react-router-dom'
-
+import { CategoryContext } from "../categories/CategoryProvider.js"
 
 export const GameForm = () => {
     const history = useHistory()
-    const { createGame, getGameTypes, gameTypes } = useContext(GameContext)
-    /*
-        Since the input fields are bound to the values of
-        the properties of this state variable, you need to
-        provide some default values.
-    */
+    const { categories, getCategories } = useContext(CategoryContext)
+    const {getGames, createGame} = useContext(GameContext)
+
     const [currentGame, setCurrentGame] = useState({
-        skillLevel: 1,
-        numberOfPlayers: 0,
         title: "",
-        maker: "",
-        gameTypeId: 1
+        description: "",
+        designer: "",
+        year_released: "",
+        num_of_players: 0,
+        play_time: 0,
+        recommended_age: 0,
+        categories: []
     })
 
-    /*
-        Get game types on initialization so that the <select>
-        element presents game type choices to the user.
-    */
     useEffect(() => {
-        getGameTypes()
+        getCategories()
+        getGames()
     }, [])
 
-    /*
-        REFACTOR CHALLENGE START
-
-        Can you refactor this code so that all property
-        state changes can be handled with a single function
-        instead of five functions that all, largely, do
-        the same thing?
-
-        One hint: [event.target.name]
-    */
     const changeGameState = (event) => {
         const newGameState = { ...currentGame }
         if (event.target.name === "title") {
             newGameState.title = event.target.value
         }
-        else if (event.target.name === "maker") {
-            newGameState.maker = event.target.value
+        else if (event.target.name === "description") {
+            newGameState.description = event.target.value
         }
-        else if (event.target.name === "game_type") {
-            newGameState.gameTypeId = parseInt(event.target.value)
+        else if (event.target.name === "designer") {
+            newGameState.designer = event.target.value
         }
-        else if (event.target.name === "num_players") {
-            newGameState.numberOfPlayers = parseInt(event.target.value)
+        else if (event.target.name === "year_released") {
+            newGameState.year_released = event.target.value
         }
-        else if (event.target.name === "skill_level") {
-            newGameState.skillLevel = parseInt(event.target.value)
+        else if (event.target.name === "num_of_players") {
+            newGameState.num_of_players = parseInt(event.target.value)
+        }
+        else if (event.target.name === "recommended_age") {
+            newGameState.recommended_age = parseInt(event.target.value)
+        }
+        else if (event.target.name === "categories") {
+            newGameState.categories = [parseInt(event.target.value)]
         }
         setCurrentGame(newGameState)
     }
-    /* REFACTOR CHALLENGE END */
 
     return (
         <form className="gameForm">
@@ -72,49 +64,64 @@ export const GameForm = () => {
             </fieldset>
             <fieldset>
                 <div className="form-group">
-                    <label htmlFor="maker">Maker: </label>
-                    <input type="text" name="maker" required autoFocus className="form-control"
-                        value={currentGame.maker}
+                    <label htmlFor="designer">Designer: </label>
+                    <input type="text" name="designer" required autoFocus className="form-control"
+                        value={currentGame.designer}
                         onChange={changeGameState}
                     />
                 </div>
             </fieldset>
             <fieldset>
                 <div className="form-group">
-                    <label htmlFor="maker">Game Type: </label>
-                    <select type="text" name="game_type" required autoFocus className="form-control"
-                        value={currentGame.gameTypeId}
+                    <label htmlFor="description">Description: </label>
+                    <textarea type="text" name="description" required autoFocus className="form-control"
+                        value={currentGame.description}
+                        onChange={changeGameState}
+                    ></textarea>
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="year_released">Year Released: </label>
+                    <input type="date" name="year_released" required autoFocus className="form-control"
+                        value={currentGame.year_released}
+                        onChange={changeGameState}
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="num_of_players">Number Of Players: </label>
+                    <input type="number" name="num_of_players" required autoFocus className="form-control"
+                        value={currentGame.num_of_players}
+                        onChange={changeGameState}
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="recommended_age">Recommended Age: </label>
+                    <input type="number" name="recommended_age" required autoFocus className="form-control"
+                        value={currentGame.recommended_age}
+                        onChange={changeGameState}
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="category">Category: </label>
+                    <select type="text" name="categories" required autoFocus className="form-control"
+                        value={currentGame.categories}
                         onChange={changeGameState}
                     >
                         {
-                            gameTypes.map(
-                                type => <option value={type.id}>{type.label}</option>
+                            categories.map(
+                                category => <option value={category.id}>{category.name}</option>
                             )
                         }
                     </select>
                 </div>
             </fieldset>
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="num_players">Number Of Players: </label>
-                    <input type="number" name="num_players" required autoFocus className="form-control"
-                        value={currentGame.numberOfPlayers}
-                        onChange={changeGameState}
-                    />
-                </div>
-            </fieldset>
-            <fieldset>
-                <div className="form-group">
-                    <label htmlFor="num_players">Skill Level (1-10): </label>
-                    <input type="number" name="skill_level" min="1" max="10" required autoFocus className="form-control"
-                        value={currentGame.skillLevel}
-                        onChange={changeGameState}
-                    />
-                </div>
-            </fieldset>
-        
-
-            {/* You create the rest of the input fields for each game property */}
 
             <button type="submit"
                 onClick={evt => {
@@ -122,11 +129,14 @@ export const GameForm = () => {
                     evt.preventDefault()
 
                     const game = {
-                        maker: currentGame.maker,
                         title: currentGame.title,
-                        numberOfPlayers: parseInt(currentGame.numberOfPlayers),
-                        skillLevel: parseInt(currentGame.skillLevel),
-                        gameTypeId: parseInt(currentGame.gameTypeId)
+                        description: currentGame.description,
+                        designer: currentGame.designer,
+                        year_released: currentGame.year_released,
+                        num_of_players: parseInt(currentGame.num_of_players),
+                        play_time: parseInt(currentGame.play_time),
+                        recommended_age: parseInt(currentGame.recommended_age),
+                        categories: currentGame.categories
                     }
 
                     // Send POST request to your API
